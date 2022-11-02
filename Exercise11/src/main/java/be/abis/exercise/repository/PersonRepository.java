@@ -4,6 +4,7 @@ import be.abis.exercise.model.Person;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public interface PersonRepository {
 	
@@ -13,5 +14,5 @@ public interface PersonRepository {
 	    void addPerson(Person p) throws IOException;
 	    public void deletePerson(int id);
 	    void changePassword(Person p, String newPswd) throws IOException;
-
+    	List<Person> findPersonByCompany(String compName);
 }

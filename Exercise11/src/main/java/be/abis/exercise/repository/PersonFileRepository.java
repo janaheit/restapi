@@ -10,6 +10,8 @@ import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class PersonFileRepository implements PersonRepository {
@@ -158,11 +160,17 @@ public class PersonFileRepository implements PersonRepository {
 		this.writePersons();
 	}
 
+	@Override
+	public List<Person> findPersonByCompany(String compName) {
+		this.readFile();
+		return allPersons.stream().filter(p->p.getCompany().getName().equals(compName)).collect(Collectors.toList());
+	}
+
 	private StringBuilder parsePerson(Person p) {
 		StringBuilder sb = new StringBuilder();
 		int nr = p.getCompany().getAddress().getNr();
 		sb.append(p.getPersonId() + ";").append(p.getFirstName() + ";").append(p.getLastName() + ";")
-				.append((p.getAge() != 0 ? DateUtil.writeDate(p.getBirthDate()) : null) + ";").append(p.getEmailAddress() + ";")
+				.append((p.getBirthDate() != null ? DateUtil.writeDate(p.getBirthDate()) : null) + ";").append(p.getEmailAddress() + ";")
 				.append(p.getPassword() + ";").append(p.getLanguage().toLowerCase() + ";")
 				.append(p.getCompany().getName() + ";").append(p.getCompany().getTelephoneNumber() + ";")
 				.append(p.getCompany().getVatNr() + ";").append(p.getCompany().getAddress().getStreet() + ";")

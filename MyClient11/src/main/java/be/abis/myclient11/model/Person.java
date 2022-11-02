@@ -1,13 +1,10 @@
-package be.abis.exercise.model;
+package be.abis.myclient11.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import java.time.LocalDate;
 import java.time.Period;
 
-@JacksonXmlRootElement(localName = "person")
 public class Person {
 	
 	private int personId;

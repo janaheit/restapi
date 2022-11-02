@@ -4,6 +4,7 @@ import be.abis.exercise.model.Address;
 import be.abis.exercise.model.Company;
 import be.abis.exercise.model.Person;
 import be.abis.exercise.repository.PersonRepository;
+import be.abis.exercise.utils.DateUtil;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,8 @@ public class PersonRepositoryTest {
 	public void addNewPerson() throws IOException {
 		Address a = new Address("Diestsevest",32,"3000","Leuven");
 		Company c = new Company("Abis","016/455610","BE12345678",a);
-		Person p = new Person(4,"Sandy","Schillebeeckx",43,"sschillebeeckx@abis.be","abis123","nl",c);
+		Person p = new Person(4,"Sandy","Schillebeeckx", DateUtil.parseDate("21/12/2012"),
+				"sschillebeeckx@abis.be","abis123","nl",c);
 		personRepository.addPerson(p);
 	}
 
@@ -58,7 +60,11 @@ public class PersonRepositoryTest {
 		personRepository.deletePerson(4);
 	}
 
-	
+	@Test
+	@Order(6)
+	public void findOracleReturnsBob(){
+		assertEquals("Bob", personRepository.findPersonByCompany("Oracle").get(0).getFirstName());
+	}
 	
 
 }

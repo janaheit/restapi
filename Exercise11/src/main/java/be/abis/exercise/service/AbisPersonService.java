@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AbisPersonService implements PersonService {
@@ -42,6 +43,11 @@ public class AbisPersonService implements PersonService {
 	@Override
 	public void changePassword(Person p, String newPswd) throws IOException {
 		personRepository.changePassword(p, newPswd);
+	}
+
+	@Override
+	public List<Person> findPersonByCompany(String compName) {
+		return personRepository.findPersonByCompany(compName);
 	}
 
 }

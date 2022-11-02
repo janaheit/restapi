@@ -3,7 +3,8 @@
 
 POST /exercise/personapi/persons/login   -> by email & id
 GET /exercise/personapi/persons/{id}    -> find by id
+GET /exercise/personapi/persons/{id}    -> find by compName
 GET /exercise/personapi/persons         -> get all persons
 POST /exercise/personapi/persons        -> add person with RequestBody
 DELETE /exercise/personapi/persons/{id} -> delete person by id
-PUT /exercise/personapi/persons/{id}    -> update password
+PATCH /exercise/personapi/persons/{id}    -> update password
