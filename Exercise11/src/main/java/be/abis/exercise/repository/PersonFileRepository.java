@@ -3,6 +3,7 @@ package be.abis.exercise.repository;
 import be.abis.exercise.model.Address;
 import be.abis.exercise.model.Company;
 import be.abis.exercise.model.Person;
+import be.abis.exercise.utils.DateUtil;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -53,7 +54,7 @@ public class PersonFileRepository implements PersonRepository {
 					p.setPersonId(!vals[0].equals("null") ? Integer.parseInt(vals[0]) : 0);
 					p.setFirstName(!vals[1].equals("null") ? vals[1] : null);
 					p.setLastName(!vals[2].equals("null") ? vals[2] : null);
-					p.setAge(Integer.parseInt(!vals[3].equals("null") ? vals[3] : "0"));
+					p.setBirthDate(DateUtil.parseDate(!vals[3].equals("null") ? vals[3] : null));
 					p.setEmailAddress(!vals[4].equals("null") ? vals[4] : null);
 					p.setPassword(!vals[5].equals("null") ? vals[5] : null);
 					p.setLanguage(!vals[6].equals("null") ? vals[6] : null);
@@ -161,7 +162,7 @@ public class PersonFileRepository implements PersonRepository {
 		StringBuilder sb = new StringBuilder();
 		int nr = p.getCompany().getAddress().getNr();
 		sb.append(p.getPersonId() + ";").append(p.getFirstName() + ";").append(p.getLastName() + ";")
-				.append((p.getAge() != 0 ? p.getAge() : null) + ";").append(p.getEmailAddress() + ";")
+				.append((p.getAge() != 0 ? DateUtil.writeDate(p.getBirthDate()) : null) + ";").append(p.getEmailAddress() + ";")
 				.append(p.getPassword() + ";").append(p.getLanguage().toLowerCase() + ";")
 				.append(p.getCompany().getName() + ";").append(p.getCompany().getTelephoneNumber() + ";")
 				.append(p.getCompany().getVatNr() + ";").append(p.getCompany().getAddress().getStreet() + ";")

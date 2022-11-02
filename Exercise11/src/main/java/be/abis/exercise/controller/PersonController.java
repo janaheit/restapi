@@ -1,5 +1,6 @@
 package be.abis.exercise.controller;
 
+import be.abis.exercise.model.LoginModel;
 import be.abis.exercise.model.Person;
 import be.abis.exercise.repository.PersonRepository;
 import be.abis.exercise.service.PersonService;
@@ -17,9 +18,9 @@ public class PersonController {
     @Autowired
     PersonService personService;
 
-    @GetMapping("query")
-    public Person findPersonByMailAndPwd(@RequestParam String mail, @RequestParam String pwd){
-        return personService.findPerson(mail, pwd);
+    @PostMapping("login")
+    public Person findPersonByMailAndPwd(@RequestBody LoginModel loginModel){
+        return personService.findPerson(loginModel.getEmail(), loginModel.getPassword());
     }
 
     @GetMapping("{id}")
