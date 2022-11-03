@@ -1,5 +1,7 @@
 package be.abis.exercise.repository;
 
+import be.abis.exercise.exception.PersonAlreadyExistsException;
+import be.abis.exercise.exception.PersonNotFoundException;
 import be.abis.exercise.model.Address;
 import be.abis.exercise.model.Company;
 import be.abis.exercise.model.Person;
@@ -80,7 +82,7 @@ public class PersonFileRepository implements PersonRepository {
 	}
 
 	@Override
-	public Person findPerson(String emailAddress, String passWord) {
+	public Person findPerson(String emailAddress, String passWord) throws PersonNotFoundException {
 		if (emailAddress == null || passWord == null) {
 			return null;
 		}
@@ -95,17 +97,17 @@ public class PersonFileRepository implements PersonRepository {
 				return pers;
 			}
 		}
-		return null;
+		throw new PersonNotFoundException("This person does not exist");
 	}
 	
 	@Override
-	public Person findPerson(int id) {
+	public Person findPerson(int id) throws PersonNotFoundException {
 		this.readFile();
-		return allPersons.stream().filter(p->p.getPersonId()==id).findFirst().orElse(null);
+		return allPersons.stream().filter(p->p.getPersonId()==id).findFirst().orElseThrow(()-> new PersonNotFoundException("This person does not exist."));
 	}
 
 	@Override
-	public void addPerson(Person p) throws IOException {
+	public void addPerson(Person p) throws PersonAlreadyExistsException, IOException {
 		boolean b = false;
 		this.readFile();
 		Iterator<Person> iter = allPersons.iterator();
@@ -113,7 +115,7 @@ public class PersonFileRepository implements PersonRepository {
 		while (iter.hasNext()) {
 			Person pers = iter.next();
 			if (pers.getEmailAddress().equalsIgnoreCase(p.getEmailAddress())) {
-				throw new IOException("you were already registered, login please");
+				throw new PersonAlreadyExistsException("you were already registered, login please");
 			} else {
 				b = true;
 			}
@@ -161,7 +163,7 @@ public class PersonFileRepository implements PersonRepository {
 	}
 
 	@Override
-	public List<Person> findPersonByCompany(String compName) {
+	public List<Person> findPersonsByCompany(String compName) {
 		this.readFile();
 		return allPersons.stream().filter(p->p.getCompany().getName().equals(compName)).collect(Collectors.toList());
 	}

@@ -1,5 +1,7 @@
 package be.abis.exercise.service;
 
+import be.abis.exercise.exception.PersonAlreadyExistsException;
+import be.abis.exercise.exception.PersonNotFoundException;
 import be.abis.exercise.model.Person;
 import be.abis.exercise.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +23,17 @@ public class AbisPersonService implements PersonService {
 	}
 
 	@Override
-	public Person findPerson(int id) {
+	public Person findPerson(int id) throws PersonNotFoundException {
 		return personRepository.findPerson(id);
 	}
 
 	@Override
-	public Person findPerson(String emailAddress, String passWord) {
+	public Person findPerson(String emailAddress, String passWord) throws PersonNotFoundException {
 		return personRepository.findPerson(emailAddress, passWord);
 	}
 
 	@Override
-	public void addPerson(Person p) throws IOException {
+	public void addPerson(Person p) throws IOException, PersonAlreadyExistsException {
 		personRepository.addPerson(p);
 	}
 
@@ -47,7 +49,7 @@ public class AbisPersonService implements PersonService {
 
 	@Override
 	public List<Person> findPersonByCompany(String compName) {
-		return personRepository.findPersonByCompany(compName);
+		return personRepository.findPersonsByCompany(compName);
 	}
 
 }

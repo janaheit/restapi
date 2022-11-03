@@ -1,14 +1,17 @@
 package be.abis.myclient11.service;
 
+import be.abis.myclient11.error.ApiError;
+import be.abis.myclient11.exception.PersonAlreadyExistsException;
+import be.abis.myclient11.exception.PersonNotFoundException;
 import be.abis.myclient11.model.LoginModel;
 import be.abis.myclient11.model.Person;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -21,13 +24,40 @@ public class AbisPersonService implements PersonService {
     private String baseUrl = "http://localhost:8080/exercise/personapi/persons";
 
     @Override
-    public Person findPersonByID(int id) {
-        return restTemplate.getForObject(baseUrl+"/"+id, Person.class);
+    public Person findPersonByID(int id) throws PersonNotFoundException, JsonProcessingException {
+        ResponseEntity<? extends Object> re = null;
+        try{
+            re = restTemplate.getForEntity(baseUrl+"/"+id, Person.class);
+            return (Person)re.getBody();
+        } catch (HttpStatusCodeException e){
+            if (HttpStatus.NOT_FOUND == e.getStatusCode()){
+                String serr = e.getResponseBodyAsString();
+                ApiError ae = new ObjectMapper().readValue(serr, ApiError.class);
+                throw new PersonNotFoundException(ae.getDescription());
+            } else {
+                System.out.println("Some other error occured");
+            }
+        }
+        return null;
     }
 
     @Override
-    public Person findPersonByEmailAndPassword(LoginModel loginModel) {
-        return restTemplate.postForObject(baseUrl+"/login", loginModel, Person.class);
+    public Person findPersonByEmailAndPassword(LoginModel loginModel) throws PersonNotFoundException, JsonProcessingException {
+
+        ResponseEntity<? extends Object> re = null;
+        try{
+            re = restTemplate.postForEntity(baseUrl+"/login", loginModel, Person.class);
+            return (Person)re.getBody();
+        } catch (HttpStatusCodeException e){
+            if (HttpStatus.NOT_FOUND == e.getStatusCode()){
+                String serr = e.getResponseBodyAsString();
+                ApiError ae = new ObjectMapper().readValue(serr, ApiError.class);
+                throw new PersonNotFoundException(ae.getDescription());
+            } else {
+                System.out.println("Some other error occured");
+            }
+        }
+        return null;
     }
 
     @Override
@@ -52,9 +82,24 @@ public class AbisPersonService implements PersonService {
     }
 
     @Override
-    public void addPerson(Person person) {
-        restTemplate.postForObject(baseUrl, person, Void.class);
+    public Boolean addPerson(Person person) throws JsonProcessingException, PersonAlreadyExistsException {
+
+        ResponseEntity<? extends Object> re = null;
+        try{
+            re = restTemplate.postForEntity(baseUrl, person, Person.class);
+            return true;
+        } catch (HttpStatusCodeException e){
+            if (HttpStatus.CONFLICT == e.getStatusCode()){
+                String serr = e.getResponseBodyAsString();
+                ApiError ae = new ObjectMapper().readValue(serr, ApiError.class);
+                throw new PersonAlreadyExistsException(ae.getDescription());
+            } else {
+                System.out.println("Some other error occured");
+            }
+        }
+        return false;
     }
+
 
     @Override
     public void deletePerson(int id) {

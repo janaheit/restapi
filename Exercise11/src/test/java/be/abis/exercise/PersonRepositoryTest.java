@@ -1,5 +1,7 @@
 package be.abis.exercise;
 
+import be.abis.exercise.exception.PersonAlreadyExistsException;
+import be.abis.exercise.exception.PersonNotFoundException;
 import be.abis.exercise.model.Address;
 import be.abis.exercise.model.Company;
 import be.abis.exercise.model.Person;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -25,9 +28,14 @@ public class PersonRepositoryTest {
 
 	@Test
 	@Order(1)
-	public void person1ShouldBeCalledJohn(){
+	public void person1ShouldBeCalledJohn() throws PersonNotFoundException {
 		String firstName = personRepository.findPerson(1).getFirstName();
 		assertEquals("John",firstName);
+	}
+
+	@Test
+	public void findInexistingPersonByIDThrowsException() {
+		assertThrows(PersonNotFoundException.class, () -> personRepository.findPerson(10));
 	}
 
 	@Test
@@ -39,7 +47,7 @@ public class PersonRepositoryTest {
 
 	@Test
 	@Order(3)
-	public void addNewPerson() throws IOException {
+	public void addNewPerson() throws PersonAlreadyExistsException, IOException {
 		Address a = new Address("Diestsevest",32,"3000","Leuven");
 		Company c = new Company("Abis","016/455610","BE12345678",a);
 		Person p = new Person(4,"Sandy","Schillebeeckx", DateUtil.parseDate("21/12/2012"),
@@ -49,21 +57,42 @@ public class PersonRepositoryTest {
 
 	@Test
 	@Order(4)
-	public void changePassWordOfAddedPerson() throws IOException {
-		Person p = personRepository.findPerson("sschillebeeckx@abis.be","abis123");
-		personRepository.changePassword(p,"blabla");
+	public void addExistingPerson() throws PersonAlreadyExistsException, IOException {
+		Address a = new Address("Diestsevest",32,"3000","Leuven");
+		Company c = new Company("Abis","016/455610","BE12345678",a);
+		Person p = new Person(4,"Sandy","Schillebeeckx", DateUtil.parseDate("21/12/2012"),
+				"sschillebeeckx@abis.be","abis123","nl",c);
+		assertThrows(PersonAlreadyExistsException.class, () -> personRepository.addPerson(p));
 	}
 
 	@Test
 	@Order(5)
+	public void changePassWordOfAddedPerson() throws IOException {
+		Person p;
+		try{
+			p = personRepository.findPerson("sschillebeeckx@abis.be","abis123");
+		} catch (PersonNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		personRepository.changePassword(p,"blabla");
+	}
+
+	@Test
+	@Order(6)
+	public void findInexistingPersonByEmailAndPasswordThrowsException() {
+		assertThrows(PersonNotFoundException.class, () -> personRepository.findPerson("qdfq@gmail.com", "qmsdfq"));
+	}
+
+	@Test
+	@Order(7)
 	public void deleteAddedPerson(){
 		personRepository.deletePerson(4);
 	}
 
 	@Test
-	@Order(6)
+	@Order(8)
 	public void findOracleReturnsBob(){
-		assertEquals("Bob", personRepository.findPersonByCompany("Oracle").get(0).getFirstName());
+		assertEquals("Bob", personRepository.findPersonsByCompany("Oracle").get(0).getFirstName());
 	}
 	
 
