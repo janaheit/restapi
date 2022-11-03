@@ -16,6 +16,7 @@ public class Person {
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate birthDate;
 	private String emailAddress;
+
 	private String password;
 	private String language;
 	private Company company;

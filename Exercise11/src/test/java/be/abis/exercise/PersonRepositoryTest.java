@@ -1,6 +1,7 @@
 package be.abis.exercise;
 
 import be.abis.exercise.exception.PersonAlreadyExistsException;
+import be.abis.exercise.exception.PersonCannotBeDeletedException;
 import be.abis.exercise.exception.PersonNotFoundException;
 import be.abis.exercise.model.Address;
 import be.abis.exercise.model.Company;
@@ -85,7 +86,7 @@ public class PersonRepositoryTest {
 
 	@Test
 	@Order(7)
-	public void deleteAddedPerson(){
+	public void deleteAddedPerson() throws PersonCannotBeDeletedException {
 		personRepository.deletePerson(4);
 	}
 
@@ -93,6 +94,12 @@ public class PersonRepositoryTest {
 	@Order(8)
 	public void findOracleReturnsBob(){
 		assertEquals("Bob", personRepository.findPersonsByCompany("Oracle").get(0).getFirstName());
+	}
+
+	@Test
+	@Order(9)
+	void deleteNonExistingPersonThrowsException(){
+		assertThrows(PersonCannotBeDeletedException.class, ()->personRepository.deletePerson(10));
 	}
 	
 

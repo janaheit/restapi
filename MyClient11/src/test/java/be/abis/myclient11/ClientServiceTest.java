@@ -1,6 +1,7 @@
 package be.abis.myclient11;
 
 import be.abis.myclient11.exception.PersonAlreadyExistsException;
+import be.abis.myclient11.exception.PersonCannotBeDeletedException;
 import be.abis.myclient11.exception.PersonNotFoundException;
 import be.abis.myclient11.model.Address;
 import be.abis.myclient11.model.Company;
@@ -92,9 +93,15 @@ public class ClientServiceTest {
 
     @Test
     @Order(8)
-    public void deletePerson() throws PersonNotFoundException, JsonProcessingException {
+    public void deletePerson() throws PersonCannotBeDeletedException, JsonProcessingException {
         personService.deletePerson(4);
         assertThrows(PersonNotFoundException.class, () -> personService.findPersonByID(4));
+    }
+
+    @Test
+    @Order(9)
+    public void deleteNonExistingPerson()  {
+        assertThrows(PersonCannotBeDeletedException.class, () -> personService.deletePerson(40));
     }
 
     @Test

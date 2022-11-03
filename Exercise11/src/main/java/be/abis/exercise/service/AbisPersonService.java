@@ -1,6 +1,7 @@
 package be.abis.exercise.service;
 
 import be.abis.exercise.exception.PersonAlreadyExistsException;
+import be.abis.exercise.exception.PersonCannotBeDeletedException;
 import be.abis.exercise.exception.PersonNotFoundException;
 import be.abis.exercise.model.Person;
 import be.abis.exercise.repository.PersonRepository;
@@ -38,7 +39,7 @@ public class AbisPersonService implements PersonService {
 	}
 
 	@Override
-	public void deletePerson(int id) {
+	public void deletePerson(int id) throws PersonCannotBeDeletedException {
 		personRepository.deletePerson(id);
 	}
 

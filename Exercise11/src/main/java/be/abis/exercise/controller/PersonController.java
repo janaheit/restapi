@@ -2,6 +2,7 @@ package be.abis.exercise.controller;
 
 import be.abis.exercise.error.ApiError;
 import be.abis.exercise.exception.PersonAlreadyExistsException;
+import be.abis.exercise.exception.PersonCannotBeDeletedException;
 import be.abis.exercise.exception.PersonNotFoundException;
 import be.abis.exercise.model.LoginModel;
 import be.abis.exercise.model.Person;
@@ -24,18 +25,8 @@ public class PersonController {
     PersonService personService;
 
     @PostMapping("login")
-    public ResponseEntity<? extends Object> findPersonByMailAndPwd(@RequestBody LoginModel loginModel){
-        try {
-            Person p = personService.findPerson(loginModel.getEmail(), loginModel.getPassword());
-            return new ResponseEntity<Person>(p, HttpStatus.OK);
-        } catch (PersonNotFoundException e) {
-            HttpStatus status = HttpStatus.NOT_FOUND;
-            ApiError err = new ApiError("person not found", status.value(), e.getMessage());
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add("content-type", MediaType.APPLICATION_PROBLEM_JSON_VALUE);
-            return new ResponseEntity<ApiError>(err, responseHeaders, status);
-        }
-
+    public Person findPersonByMailAndPwd(@RequestBody LoginModel loginModel) throws PersonNotFoundException {
+        return personService.findPerson(loginModel.getEmail(), loginModel.getPassword());
     }
 
     @GetMapping(value = "query", produces = MediaType.APPLICATION_XML_VALUE)
@@ -44,18 +35,8 @@ public class PersonController {
     }
 
     @GetMapping(value= "{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<? extends Object> findPersonByID(@PathVariable("id") int id){
-
-        try {
-            Person p = personService.findPerson(id);;
-            return new ResponseEntity<Person>(p, HttpStatus.OK);
-        } catch (PersonNotFoundException e) {
-            HttpStatus status = HttpStatus.NOT_FOUND;
-            ApiError err = new ApiError("person not found", status.value(), e.getMessage());
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.add("content-type", MediaType.APPLICATION_PROBLEM_JSON_VALUE);
-            return new ResponseEntity<ApiError>(err, responseHeaders, status);
-        }
+    public Person findPersonByID(@PathVariable("id") int id) throws PersonNotFoundException {
+        return personService.findPerson(id);
     }
 
     @GetMapping("")
@@ -64,23 +45,12 @@ public class PersonController {
     }
 
     @PostMapping(value = "")
-    public ResponseEntity<? extends Object> addPerson(@RequestBody Person person) throws IOException {
-        System.out.println(person.getBirthDate());
-
-        ResponseEntity<? extends Object> re=null;
-        try{
-            personService.addPerson(person);
-            return new ResponseEntity<Person>(person, HttpStatus.OK);
-        } catch (PersonAlreadyExistsException e) {
-            HttpStatus status = HttpStatus.CONFLICT;
-            ApiError err = new ApiError("person already exists", status.value(), e.getMessage());
-            HttpHeaders responseHeaders = new HttpHeaders();
-            return new ResponseEntity<ApiError>(err, responseHeaders, status);
-        }
+    public void addPerson(@RequestBody Person person) throws IOException, PersonAlreadyExistsException {
+        personService.addPerson(person);
     }
 
     @DeleteMapping("{id}")
-    public void deletePerson(@PathVariable("id") int id) {
+    public void deletePerson(@PathVariable("id") int id) throws PersonCannotBeDeletedException {
         personService.deletePerson(id);
     }
 

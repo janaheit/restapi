@@ -2,6 +2,7 @@ package be.abis.myclient11.service;
 
 import be.abis.myclient11.error.ApiError;
 import be.abis.myclient11.exception.PersonAlreadyExistsException;
+import be.abis.myclient11.exception.PersonCannotBeDeletedException;
 import be.abis.myclient11.exception.PersonNotFoundException;
 import be.abis.myclient11.model.LoginModel;
 import be.abis.myclient11.model.Person;
@@ -102,8 +103,18 @@ public class AbisPersonService implements PersonService {
 
 
     @Override
-    public void deletePerson(int id) {
-        restTemplate.delete(baseUrl+"/"+id);
+    public void deletePerson(int id) throws PersonCannotBeDeletedException, JsonProcessingException {
+        try{
+            restTemplate.delete(baseUrl+"/"+id);
+        } catch (HttpStatusCodeException e){
+            if (HttpStatus.CONFLICT == e.getStatusCode()){
+                String serr = e.getResponseBodyAsString();
+                ApiError ae = new ObjectMapper().readValue(serr, ApiError.class);
+                throw new PersonCannotBeDeletedException(ae.getDescription());
+            } else {
+                System.out.println("Some other error occured");
+            }
+        }
     }
 
     @Override

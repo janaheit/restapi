@@ -1,6 +1,7 @@
 package be.abis.exercise.service;
 
 import be.abis.exercise.exception.PersonAlreadyExistsException;
+import be.abis.exercise.exception.PersonCannotBeDeletedException;
 import be.abis.exercise.exception.PersonNotFoundException;
 import be.abis.exercise.model.Person;
 
@@ -14,7 +15,7 @@ public interface PersonService {
     Person findPerson(int id) throws PersonNotFoundException;
     Person findPerson(String emailAddress, String passWord) throws PersonNotFoundException;
     void addPerson(Person p) throws IOException, PersonAlreadyExistsException;
-    public void deletePerson(int id);
+    public void deletePerson(int id) throws PersonCannotBeDeletedException;
     void changePassword(Person p, String newPswd) throws IOException;
 
     List<Person> findPersonByCompany(String compName);

@@ -1,6 +1,7 @@
 package be.abis.exercise.repository;
 
 import be.abis.exercise.exception.PersonAlreadyExistsException;
+import be.abis.exercise.exception.PersonCannotBeDeletedException;
 import be.abis.exercise.exception.PersonNotFoundException;
 import be.abis.exercise.model.Address;
 import be.abis.exercise.model.Company;
@@ -132,15 +133,20 @@ public class PersonFileRepository implements PersonRepository {
 	}
 
 	@Override
-	public void deletePerson(int id) {
+	public void deletePerson(int id) throws PersonCannotBeDeletedException {
 		Iterator<Person> iter = allPersons.iterator();
+
+		Boolean found = false;
 
 		while (iter.hasNext()) {
 			Person pers = iter.next();
 			if (pers.getPersonId()==id) {
 				iter.remove();
+				found=true;
 			}
 		}
+
+		if (found==false) throw new PersonCannotBeDeletedException("This person does not exist and cannot be deleted");
 
 		try {
 			this.writePersons();
