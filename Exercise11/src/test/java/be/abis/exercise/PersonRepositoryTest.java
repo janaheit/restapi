@@ -1,5 +1,6 @@
 package be.abis.exercise;
 
+import be.abis.exercise.error.ValidationError;
 import be.abis.exercise.exception.PersonAlreadyExistsException;
 import be.abis.exercise.exception.PersonCannotBeDeletedException;
 import be.abis.exercise.exception.PersonNotFoundException;

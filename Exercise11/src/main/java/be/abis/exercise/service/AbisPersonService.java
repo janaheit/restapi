@@ -39,6 +39,11 @@ public class AbisPersonService implements PersonService {
 	}
 
 	@Override
+	public String findApiKeyByID(int id) {
+		return personRepository.getApiKeyFor(id);
+	}
+
+	@Override
 	public void deletePerson(int id) throws PersonCannotBeDeletedException {
 		personRepository.deletePerson(id);
 	}

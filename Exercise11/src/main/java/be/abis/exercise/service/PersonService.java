@@ -19,4 +19,5 @@ public interface PersonService {
     void changePassword(Person p, String newPswd) throws IOException;
 
     List<Person> findPersonByCompany(String compName);
+    String findApiKeyByID(int id);
 }

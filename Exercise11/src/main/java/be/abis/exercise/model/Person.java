@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -16,7 +17,7 @@ public class Person {
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate birthDate;
 	private String emailAddress;
-
+	@Size(min=6)
 	private String password;
 	private String language;
 	private Company company;

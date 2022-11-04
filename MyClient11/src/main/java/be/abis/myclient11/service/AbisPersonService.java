@@ -1,9 +1,11 @@
 package be.abis.myclient11.service;
 
 import be.abis.myclient11.error.ApiError;
+import be.abis.myclient11.error.ValidationError;
 import be.abis.myclient11.exception.PersonAlreadyExistsException;
 import be.abis.myclient11.exception.PersonCannotBeDeletedException;
 import be.abis.myclient11.exception.PersonNotFoundException;
+import be.abis.myclient11.exception.ValidationException;
 import be.abis.myclient11.model.LoginModel;
 import be.abis.myclient11.model.Person;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,6 +25,7 @@ public class AbisPersonService implements PersonService {
 
     @Autowired RestTemplate restTemplate;
     private String baseUrl = "http://localhost:8080/exercise/personapi/persons";
+    private static String apiKey=null;
 
     @Override
     public Person findPersonByID(int id) throws PersonNotFoundException, JsonProcessingException {
@@ -35,7 +38,9 @@ public class AbisPersonService implements PersonService {
                 String serr = e.getResponseBodyAsString();
                 ApiError ae = new ObjectMapper().readValue(serr, ApiError.class);
                 throw new PersonNotFoundException(ae.getDescription());
-            } else {
+            } else if (HttpStatus.UNAUTHORIZED==e.getStatusCode()){
+                System.out.println("unauthorised");
+            }else {
                 System.out.println("Some other error occured");
             }
         }
@@ -46,8 +51,10 @@ public class AbisPersonService implements PersonService {
     public Person findPersonByEmailAndPassword(LoginModel loginModel) throws PersonNotFoundException, JsonProcessingException {
 
         ResponseEntity<? extends Object> re = null;
+
         try{
             re = restTemplate.postForEntity(baseUrl+"/login", loginModel, Person.class);
+            this.apiKey = re.getHeaders().get("api-key").get(0);
             return (Person)re.getBody();
         } catch (HttpStatusCodeException e){
             if (HttpStatus.NOT_FOUND == e.getStatusCode()){
@@ -83,7 +90,7 @@ public class AbisPersonService implements PersonService {
     }
 
     @Override
-    public Boolean addPerson(Person person) throws JsonProcessingException, PersonAlreadyExistsException {
+    public Boolean addPerson(Person person) throws JsonProcessingException, PersonAlreadyExistsException, ValidationException {
 
         ResponseEntity<? extends Object> re = null;
         try{
@@ -94,6 +101,14 @@ public class AbisPersonService implements PersonService {
                 String serr = e.getResponseBodyAsString();
                 ApiError ae = new ObjectMapper().readValue(serr, ApiError.class);
                 throw new PersonAlreadyExistsException(ae.getDescription());
+            } if (HttpStatus.BAD_REQUEST == e.getStatusCode()) {
+                String serr = e.getResponseBodyAsString();
+                ApiError ae = new ObjectMapper().readValue(serr, ApiError.class);
+                List<ValidationError> validationErrors = ae.getInvalidParams();
+                if (validationErrors.size()!=0){
+                    String errorString = validationErrors.toString();
+                    throw new ValidationException(errorString);
+                }
             } else {
                 System.out.println("Some other error occured");
             }
@@ -107,7 +122,7 @@ public class AbisPersonService implements PersonService {
         try{
             restTemplate.delete(baseUrl+"/"+id);
         } catch (HttpStatusCodeException e){
-            if (HttpStatus.CONFLICT == e.getStatusCode()){
+            if (HttpStatus.NOT_FOUND == e.getStatusCode()){
                 String serr = e.getResponseBodyAsString();
                 ApiError ae = new ObjectMapper().readValue(serr, ApiError.class);
                 throw new PersonCannotBeDeletedException(ae.getDescription());
@@ -118,10 +133,13 @@ public class AbisPersonService implements PersonService {
     }
 
     @Override
-    public void changePassword(int id, LoginModel loginModel) {
+    public void changePassword(int id, String apiKey, LoginModel loginModel) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("api-key", apiKey);
+        HttpEntity<LoginModel> requestEntity = new HttpEntity<>(loginModel, headers);
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl+"/"+id);
-        HttpEntity<LoginModel> requestEntity = new HttpEntity<>(loginModel);
         restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.PATCH,
                 requestEntity, Void.class);
     }

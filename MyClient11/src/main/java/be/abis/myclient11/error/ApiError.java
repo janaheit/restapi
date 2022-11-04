@@ -1,11 +1,18 @@
 package be.abis.myclient11.error;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class ApiError {
     private String title;
     private int status;
     private String description;
     private String type = "about:blank";
     private String instance ="";
+    @JsonProperty("invalid-param")
+    private List<ValidationError> invalidParams = new ArrayList<>();
 
     public ApiError() {
     }
@@ -14,6 +21,14 @@ public class ApiError {
         this.title = title;
         this.status = status;
         this.description = description;
+    }
+
+    public List<ValidationError> getInvalidParams() {
+        return invalidParams;
+    }
+
+    public void setInvalidParams(List<ValidationError> invalidParams) {
+        this.invalidParams = invalidParams;
     }
 
     public String getTitle() {

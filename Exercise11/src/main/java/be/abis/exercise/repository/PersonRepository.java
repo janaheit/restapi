@@ -18,4 +18,5 @@ public interface PersonRepository {
 	    public void deletePerson(int id) throws PersonCannotBeDeletedException;
 	    void changePassword(Person p, String newPswd) throws IOException;
     	List<Person> findPersonsByCompany(String compName);
+		String getApiKeyFor(int id);
 }

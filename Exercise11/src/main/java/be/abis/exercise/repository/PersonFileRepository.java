@@ -11,9 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -21,10 +19,16 @@ public class PersonFileRepository implements PersonRepository {
 
 	private ArrayList<Person> allPersons= new ArrayList<Person>();;
 	private String fileLoc = "/temp/javacourses/personsAPI.csv";
+	private Map<Integer, String> apiKeys = new HashMap<>();
+	private String baseValue = "abcdefgh";
 
 	@PostConstruct
 	public void init(){
 		this.readFile();
+
+		for (int x=0;x<allPersons.size();x++){
+			apiKeys.put(allPersons.get(x).getPersonId(), baseValue+allPersons.get(x).getPersonId());
+		}
 	}
 
 	@Override
@@ -127,9 +131,19 @@ public class PersonFileRepository implements PersonRepository {
 
 			pw.append("\n" + sb);
 			allPersons.add(p);
+			apiKeys.put(p.getPersonId(), baseValue+p.getPersonId());
+			System.out.println(apiKeys);
 
 		}
 		pw.close();
+	}
+
+	public Map<Integer, String> getApiKeys() {
+		return apiKeys;
+	}
+
+	public String getApiKeyFor(int id){
+		return apiKeys.get(id);
 	}
 
 	@Override

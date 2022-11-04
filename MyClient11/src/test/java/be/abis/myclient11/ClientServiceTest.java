@@ -1,8 +1,10 @@
 package be.abis.myclient11;
 
+import be.abis.myclient11.error.ValidationError;
 import be.abis.myclient11.exception.PersonAlreadyExistsException;
 import be.abis.myclient11.exception.PersonCannotBeDeletedException;
 import be.abis.myclient11.exception.PersonNotFoundException;
+import be.abis.myclient11.exception.ValidationException;
 import be.abis.myclient11.model.Address;
 import be.abis.myclient11.model.Company;
 import be.abis.myclient11.model.LoginModel;
@@ -38,7 +40,7 @@ public class ClientServiceTest {
 
     @Test
     public void findPersonWithNonExistingIDThrowsException() {
-        assertThrows(PersonNotFoundException.class, () -> personService.findPersonByID(10));
+        assertThrows(PersonNotFoundException.class, () -> personService.findPersonByID(5));
     }
 
     @Test
@@ -72,7 +74,7 @@ public class ClientServiceTest {
 
     @Test
     @Order(5)
-    public void addPerson() throws JsonProcessingException, PersonAlreadyExistsException, PersonNotFoundException {
+    public void addPerson() throws JsonProcessingException, PersonAlreadyExistsException, PersonNotFoundException, ValidationException {
         Address a = new Address("Diestsevest",32,"3000","Leuven");
         Company c = new Company("Abis","016/455610","BE12345678",a);
         Person p = new Person(4,"Sandy","Schillebeeckx", LocalDate.of(2012, 12, 21),
@@ -108,7 +110,22 @@ public class ClientServiceTest {
     @Order(7)
     public void changePasswordForAddedPerson() throws PersonNotFoundException, JsonProcessingException {
         LoginModel loginModel = new LoginModel("sschillebeeckx@abis.be", "newPassword");
-        personService.changePassword(4, loginModel);
+        personService.changePassword(4, "abcdefgh4", loginModel);
         assertEquals("newPassword", personService.findPersonByID(4).getPassword());
+    }
+
+    @Test
+    public void changePasswordWithWrongAPIKeyThrowsException() {
+        fail();
+    }
+
+    @Test
+    @Order(10)
+    public void addPersonWithShortPasswordThrowsException() throws PersonAlreadyExistsException, PersonNotFoundException, JsonProcessingException, ValidationException {
+        Address a = new Address("Diestsevest",32,"3000","Leuven");
+        Company c = new Company("Abis","016/455610","BE12345678",a);
+        Person p = new Person(4,"Sandy","Schillebeeckx", LocalDate.of(2012, 12, 21),
+                "sschillebeeckx@abis.be","short","nl",c);
+        assertThrows(ValidationException.class, ()-> personService.addPerson(p));
     }
 }
